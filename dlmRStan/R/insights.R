@@ -10,16 +10,25 @@ get_insights <- function(dlmRS){
 
 insights_model_adjustment <- function(dlmRS){
 
-  intercept <- dlmRS$fit$parameters$beta$Intercept
-  y_hat <- as.numeric(dlmRS$fit$parameters$yhat)
-  y_original <- as.numeric(dlmRS$model_data$Y)
-
-  model_adjustment <- data_frame(
-    date = 1:length(y_original),
-    intercept = intercept,
-    y_hat = y_hat,
-    y_original = y_original
-  )
+  if(!dlmRS$input$remove_intercept) {
+    intercept <- dlmRS$fit$parameters$beta$Intercept
+    y_hat <- as.numeric(dlmRS$fit$parameters$yhat)
+    y_original <- as.numeric(dlmRS$model_data$Y)
+    model_adjustment <- data_frame(
+      date = 1:length(y_original),
+      intercept = intercept,
+      y_hat = y_hat,
+      y_original = y_original
+    )
+  } else {
+    y_hat <- as.numeric(dlmRS$fit$parameters$yhat)
+    y_original <- as.numeric(dlmRS$model_data$Y)
+    model_adjustment <- data_frame(
+      date = 1:length(y_original),
+      y_hat = y_hat,
+      y_original = y_original
+    )
+  }
 
   dlmRS$insights$tables$model_adjustment <- model_adjustment
 
@@ -37,13 +46,17 @@ insights_model_adjustment <- function(dlmRS){
 
 insights_efficiencies <- function(dlmRS){
 
-  efficiencies <- dlmRS$fit$parameters$beta %>%
-    select(-Intercept) %>%
-    mutate(date = 1:nrow(.))
+  if(!dlmRS$input$remove_intercept) {
+    efficiencies <- dlmRS$fit$parameters$beta %>%
+      select(-Intercept)
+  } else {
+    efficiencies <- dlmRS$fit$parameters$beta
+  }
 
   dlmRS$insights$tables$efficiencies <- efficiencies
 
   efficiencies <- efficiencies %>%
+    mutate(date = 1:nrow(.)) %>%
     gather(covariate,efficiency,-date) %>%
     mutate(covariate = factor(covariate, levels = rev(unique(covariate))))
 
@@ -60,12 +73,11 @@ insights_efficiencies <- function(dlmRS){
 
 insights_contributions <- function(dlmRS){
 
-  contributions <- dlmRS$fit$parameters$contribution %>%
-    mutate(date = 1:nrow(.))
-
+  contributions <- dlmRS$fit$parameters$contribution
   dlmRS$insights$tables$contributions <- contributions
 
   contributions <- contributions %>%
+    mutate(date = 1:nrow(.)) %>%
     gather(covariate,contribution,-date) %>%
     mutate(covariate = factor(covariate, levels = rev(unique(covariate))))
 

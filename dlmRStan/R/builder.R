@@ -38,6 +38,7 @@ build_dlmRS <- function(
   dlmRS$input <- list()
   dlmRS$input$formula <- formula
   dlmRS$input$dataset <- dataset
+  dlmRS$input$remove_intercept <- grepl("+0", gsub(" ", "", toString(formula[3])))
 
   dlmRS$meta_parameters <- list()
   dlmRS$meta_parameters$apriori_means <- apriori_means

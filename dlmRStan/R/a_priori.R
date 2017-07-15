@@ -28,6 +28,7 @@ calculate_a_priori_parameters <- function(dlmRS){
   intercept_range <- dlmRS$meta_parameters$intercept_range
   formula <- dlmRS$input$formula
   dataset <- dlmRS$input$dataset
+  remove_intercept <- dlmRS$input$remove_intercept
 
   first_trend <- get_first_trend(formula, dataset)
   least_squares_model <- calculate_least_squares_model(formula, first_trend)
@@ -35,17 +36,20 @@ calculate_a_priori_parameters <- function(dlmRS){
 
   dlmRS$a_priori$means <- a_priori_means(least_squares_model)
   dlmRS$a_priori$covariances <- a_priori_covariances(least_squares_model)
-  dlmRS$a_priori$intercept_mean <- a_priori_intercept_mean(
-    formula,
-    least_squares_model,
-    first_trend
-  )
-  dlmRS$a_priori$intercept_var <- a_priori_intercept_var(
-    least_squares_model,
-    dataset,
-    Y
-  )
   dlmRS$a_priori$sigma_lower <- 2 * var(Y) # Heuristic
+
+  if(!remove_intercept) {
+    dlmRS$a_priori$intercept_mean <- a_priori_intercept_mean(
+      formula,
+      least_squares_model,
+      first_trend
+    )
+    dlmRS$a_priori$intercept_var <- a_priori_intercept_var(
+      least_squares_model,
+      dataset,
+      Y
+    )
+  }
 
   return(dlmRS)
 }

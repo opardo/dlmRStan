@@ -25,7 +25,7 @@ model {
   y[1] ~ normal(yhat[1], sigma);
   for (t in 2:m) {
     beta[t] ~ multi_normal(beta[t-1], sigma * apriori_covariances);
-    y[t] ~ normal(intercept[t] + dot_product(row(beta,t), row(X,t)), sigma);
+    y[t] ~ normal(dot_product(row(beta,t), row(X,t)), sigma);
   }
 }
 generated quantities {
