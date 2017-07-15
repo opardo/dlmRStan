@@ -1,18 +1,18 @@
-get_insights.BR_model <- function(model){
+get_insights <- function(dlmRS){
 
-  model <- model %>%
+  dlmRS <- dlmRS %>%
     insights_model_adjustment %>%
     insights_efficiencies %>%
     insights_contributions
 
-  return(model)
+  return(dlmRS)
 }
 
-insights_model_adjustment.BR_model <- function(model){
+insights_model_adjustment <- function(dlmRS){
 
-  intercept <- model$fit$parameters$beta$Intercept
-  y_hat <- as.numeric(model$fit$parameters$yhat)
-  y_original <- as.numeric(model$model_data$original$Y)
+  intercept <- dlmRS$fit$parameters$beta$Intercept
+  y_hat <- as.numeric(dlmRS$fit$parameters$yhat)
+  y_original <- as.numeric(dlmRS$model_data$Y)
 
   model_adjustment <- data_frame(
     date = 1:length(y_original),
@@ -21,33 +21,33 @@ insights_model_adjustment.BR_model <- function(model){
     y_original = y_original
   )
 
-  model$insights$tables$model_adjustment <- model_adjustment
+  dlmRS$insights$tables$model_adjustment <- model_adjustment
 
   model_adjustment <- model_adjustment %>%
     gather(y,variable,-date)
 
-  model$insights$plots$model_adjustment <- ggplot(
+  dlmRS$insights$plots$model_adjustment <- ggplot(
     data = model_adjustment,
     aes(x = date, y = variable, color = y)
   ) +
     geom_line()
 
-  return(model)
+  return(dlmRS)
 }
 
-insights_efficiencies.BR_model <- function(model){
+insights_efficiencies <- function(dlmRS){
 
-  efficiencies <- model$fit$parameters$beta %>%
+  efficiencies <- dlmRS$fit$parameters$beta %>%
     select(-Intercept) %>%
     mutate(date = 1:nrow(.))
 
-  model$insights$tables$efficiencies <- efficiencies
+  dlmRS$insights$tables$efficiencies <- efficiencies
 
   efficiencies <- efficiencies %>%
     gather(covariate,efficiency,-date) %>%
     mutate(covariate = factor(covariate, levels = rev(unique(covariate))))
 
-  model$insights$plots$efficiencies <- ggplot(
+  dlmRS$insights$plots$efficiencies <- ggplot(
     data = efficiencies,
     aes(x = date, y = efficiency, color = covariate)
   ) +
@@ -55,26 +55,26 @@ insights_efficiencies.BR_model <- function(model){
     scale_color_brewer(palette = "Dark2") +
     geom_hline(yintercept = 0, color = "gray")
 
-  return(model)
+  return(dlmRS)
 }
 
-insights_contributions.BR_model <- function(model){
+insights_contributions <- function(dlmRS){
 
-  contributions <- model$fit$parameters$contribution %>%
+  contributions <- dlmRS$fit$parameters$contribution %>%
     mutate(date = 1:nrow(.))
 
-  model$insights$tables$contributions <- contributions
+  dlmRS$insights$tables$contributions <- contributions
 
   contributions <- contributions %>%
     gather(covariate,contribution,-date) %>%
     mutate(covariate = factor(covariate, levels = rev(unique(covariate))))
 
-  model$insights$plots$contributions <- ggplot(
+  dlmRS$insights$plots$contributions <- ggplot(
     data = contributions,
     aes(x = date, y = contribution, fill = covariate)
   ) +
     geom_area(position="stack") +
     scale_fill_brewer(palette = "Dark2")
 
-  return(model)
+  return(dlmRS)
 }

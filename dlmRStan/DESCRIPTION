@@ -1,0 +1,12 @@
+Package: dlmRStan
+Type: Package
+Title: Dynamic Linear Models, using RStan.
+Version: 1.0
+Date: 2017-01-05
+Author: Omar Pardo
+Maintainer: Omar Pardo <omarpardog@gmail.com> 
+Description: Bayesian Linear Model in a time series context (different beta's 
+  value for each period). Uses RStan to develop the MCMC algorithm.
+License: Public
+Imports: rstan, dplyr, tidyr, strucchange, loo
+Depends: rstan, dplyr, tidyr, strucchange, loo
