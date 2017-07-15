@@ -1,17 +1,17 @@
 data("dlmRStan2")
 
-dataset <- brdataset2
+dataset <- dlmRStan2
 
-formula <- AWARENESS ~ .
+formula <- awareness ~ .
 
 parallel_fit <- TRUE
 apriori_means <- NULL
 apriori_covariances <- NULL
 apriori_intercept_mean <- NULL
 apriori_intercept_var <- 0.4
-sigma_lower <- 5
+sigma_lower <- NULL
 intercept_range <- c(0, as.numeric(quantile(dataset[[toString(formula[2])]], 0.025)))
-betas_range <- c(-1, 1)
+betas_range <- c(0, 1)
 
 model <- dlmRStan(
   formula,
