@@ -13,18 +13,16 @@ insights_model_adjustment <- function(dlmRS){
   if(!dlmRS$input$remove_intercept) {
     intercept <- dlmRS$fit$parameters$beta$Intercept
     y_hat <- as.numeric(dlmRS$fit$parameters$yhat)
-    y_original <- as.numeric(dlmRS$model_data$Y)
+    y_original <- as.numeric(dlmRS$data$Y)
     model_adjustment <- data_frame(
-      date = 1:length(y_original),
       intercept = intercept,
       y_hat = y_hat,
       y_original = y_original
     )
   } else {
     y_hat <- as.numeric(dlmRS$fit$parameters$yhat)
-    y_original <- as.numeric(dlmRS$model_data$Y)
+    y_original <- as.numeric(dlmRS$data$Y)
     model_adjustment <- data_frame(
-      date = 1:length(y_original),
       y_hat = y_hat,
       y_original = y_original
     )
@@ -33,6 +31,7 @@ insights_model_adjustment <- function(dlmRS){
   dlmRS$insights$tables$model_adjustment <- model_adjustment
 
   model_adjustment <- model_adjustment %>%
+    mutate(date = 1:length(y_original)) %>%
     gather(y,variable,-date)
 
   dlmRS$insights$plots$model_adjustment <- ggplot(

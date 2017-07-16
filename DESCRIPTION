@@ -8,5 +8,5 @@ Maintainer: Omar Pardo <omarpardog@gmail.com>
 Description: Bayesian Linear Model in a time series context (different beta's 
   value for each period). Uses RStan to develop the MCMC algorithm.
 License: Public
-Imports: rstan, dplyr, tidyr, strucchange, loo
-Depends: rstan, dplyr, tidyr, strucchange, loo
+Imports: rstan, dplyr, tidyr, strucchange, loo, broom
+Depends: rstan, dplyr, tidyr, strucchange, loo, broom

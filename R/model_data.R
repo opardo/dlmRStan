@@ -1,4 +1,4 @@
-load_model_data <- function(dlmRS){
+load_data <- function(dlmRS){
   dlmRS <- dlmRS %>%
     load_X_Y %>%
     load_dimensions
@@ -9,14 +9,14 @@ load_X_Y <- function(dlmRS){
   formula <- delete_intercept(dlmRS$input$formula)
   datset <- dlmRS$input$dataset
   mf <- model.frame(formula = formula, data = dataset)
-  dlmRS$model_data$X <- model.matrix(attr(mf, "terms"), data = mf)
-  dlmRS$model_data$Y <- model.response(data = mf)
+  dlmRS$data$X <- model.matrix(attr(mf, "terms"), data = mf)
+  dlmRS$data$Y <- model.response(data = mf)
   return(dlmRS)
 }
 
 load_dimensions <- function(dlmRS){
-  dlmRS$model_data$m <- nrow(dlmRS$model_data$X)
-  dlmRS$model_data$p <- ncol(dlmRS$model_data$X)
+  dlmRS$data$m <- nrow(dlmRS$data$X)
+  dlmRS$data$p <- ncol(dlmRS$data$X)
   return(dlmRS)
 }
 

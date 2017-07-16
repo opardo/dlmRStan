@@ -3,20 +3,20 @@ load_a_priori <- function(dlmRS){
   dlmRS <- dlmRS %>%
     calculate_a_priori_parameters
 
-  if(!is.null(dlmRS$meta_parameters$apriori_means)){
-    dlmRS$a_priori$means <- dlmRS$meta_parameters$apriori_means
+  if(!is.null(dlmRS$input$apriori_betas_means)){
+    dlmRS$a_priori$betas_means <- dlmRS$input$apriori_betas_means
   }
-  if(!is.null(dlmRS$meta_parameters$apriori_covariances)){
-    dlmRS$a_priori$covariances <- dlmRS$meta_parameters$apriori_covariances
+  if(!is.null(dlmRS$input$apriori_betas_covariances)){
+    dlmRS$a_priori$betas_covariances <- dlmRS$input$apriori_betas_covariances
   }
-  if(!is.null(dlmRS$meta_parameters$apriori_intercept_mean)){
-    dlmRS$a_priori$intercept_mean <- dlmRS$meta_parameters$apriori_intercept_mean
-  }
-  if(!is.null(dlmRS$meta_parameters$apriori_intercept_var)){
-    dlmRS$a_priori$intercept_var <- dlmRS$meta_parameters$apriori_intercept_var
-  }
-  if(!is.null(dlmRS$meta_parameters$sigma_lower)){
-    dlmRS$a_priori$sigma_lower <- dlmRS$meta_parameters$sigma_lower
+
+  if(!dlmRS$input$remove_intercept) {
+    if(!is.null(dlmRS$input$apriori_intercept_mean)){
+      dlmRS$a_priori$intercept_mean <- dlmRS$input$apriori_intercept_mean
+    }
+    if(!is.null(dlmRS$input$apriori_intercept_sd)){
+      dlmRS$a_priori$intercept_sd <- dlmRS$input$apriori_intercept_sd
+    }
   }
 
   return(dlmRS)
@@ -24,19 +24,21 @@ load_a_priori <- function(dlmRS){
 
 calculate_a_priori_parameters <- function(dlmRS){
 
-  betas_range <- dlmRS$meta_parameters$betas_range
-  intercept_range <- dlmRS$meta_parameters$intercept_range
   formula <- dlmRS$input$formula
   dataset <- dlmRS$input$dataset
+  betas_range <- dlmRS$input$betas_range
   remove_intercept <- dlmRS$input$remove_intercept
+
+  if(!remove_intercept) {
+    intercept_range <- dlmRS$input$intercept_range
+  }
 
   first_trend <- get_first_trend(formula, dataset)
   least_squares_model <- calculate_least_squares_model(formula, first_trend)
-  Y <- as.numeric(dlmRS$model_data$Y)
+  Y <- as.numeric(dlmRS$data$Y)
 
-  dlmRS$a_priori$means <- a_priori_means(least_squares_model)
-  dlmRS$a_priori$covariances <- a_priori_covariances(least_squares_model)
-  dlmRS$a_priori$sigma_lower <- 2 * var(Y) # Heuristic
+  dlmRS$a_priori$betas_means <- a_priori_betas_means(least_squares_model)
+  dlmRS$a_priori$betas_covariances <- a_priori_betas_covariances(least_squares_model)
 
   if(!remove_intercept) {
     dlmRS$a_priori$intercept_mean <- a_priori_intercept_mean(
@@ -44,10 +46,10 @@ calculate_a_priori_parameters <- function(dlmRS){
       least_squares_model,
       first_trend
     )
-    dlmRS$a_priori$intercept_var <- a_priori_intercept_var(
+    dlmRS$a_priori$intercept_sd <- a_priori_intercept_sd(
+      formula,
       least_squares_model,
-      dataset,
-      Y
+      first_trend
     )
   }
 
@@ -76,7 +78,7 @@ calculate_least_squares_model <- function(formula, first_trend){
   return(least_squares_model)
 }
 
-a_priori_means <- function(least_squares_model){
+a_priori_betas_means <- function(least_squares_model){
   means <- ifelse(
     !is.na(least_squares_model$coefficients),
     least_squares_model$coefficients,
@@ -85,7 +87,7 @@ a_priori_means <- function(least_squares_model){
   return(means)
 }
 
-a_priori_covariances <- function(least_squares_model){
+a_priori_betas_covariances <- function(least_squares_model){
   if(all(!is.na(least_squares_model$coefficients)))
     covariances <- vcov(least_squares_model)
   else{
@@ -94,11 +96,7 @@ a_priori_covariances <- function(least_squares_model){
   return(covariances)
 }
 
-a_priori_intercept_mean <- function(
-  formula,
-  least_squares_model,
-  first_trend
-){
+a_priori_intercept_mean <- function(formula, least_squares_model, first_trend){
   first_trend_y <- first_trend[[toString(formula[2])]]
   first_trend_xTbeta <- as.numeric(predict(least_squares_model, first_trend))
   residuals <- first_trend_y - first_trend_xTbeta
@@ -106,9 +104,12 @@ a_priori_intercept_mean <- function(
   return(intercept_mean)
 }
 
-a_priori_intercept_var <- function(least_squares_model, dataset, y){
-  intercept_var <- as.numeric(sd(y - predict(least_squares_model, dataset)))
-  return(intercept_var)
+a_priori_intercept_sd <- function(formula, least_squares_model, first_trend){
+  first_trend_y <- first_trend[[toString(formula[2])]]
+  first_trend_xTbeta <- as.numeric(predict(least_squares_model, first_trend))
+  residuals <- first_trend_y - first_trend_xTbeta
+  intercept_sd <- sd(residuals)
+  return(intercept_sd)
 }
 
 nas_a_priori_covariances <- function(least_squares_model){
