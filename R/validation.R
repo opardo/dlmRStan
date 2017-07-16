@@ -6,7 +6,8 @@ extract_validation <- function(dlmRS){
 
   dlmRS$validation$MSE <- mean((y_hat - y_original) ^ 2)
   dlmRS$validation$MAE <- mean(abs(y_hat - y_original))
-  dlmRS$validation$R2 <- cor(diff(y_hat), diff(y_original)) ^ 2
+  dlmRS$validation$soft_R2 <- cor(y_hat, y_original) ^ 2
+  dlmRS$validation$hard_R2 <- cor(diff(y_hat), diff(y_original)) ^ 2
   dlmRS$validation$loo <- loo(log_lik)
   dlmRS$validation$waic <- waic(log_lik)
 

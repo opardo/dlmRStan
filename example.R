@@ -1,11 +1,16 @@
-data("dlmRStan2")
+# data("dlmRStan1")
+# dataset <- dlmRStan1
 
-dataset <- dlmRStan2
+local_path <- "C:/Users/MB75168/Documents/Projects/Personal/"
+setwd(paste0(local_path,"Thesis/Applications/MarketResearch/"))
+library(readr)
+dataset <- read_csv("brand_awareness_investment.csv") %>%
+  select(-weeks)
 
 formula <- awareness ~ .
 
-betas_range <- c(0, 0.05)
-intercept_range <- c(20, 35)
+betas_range <- c(-0.07, 0.07)
+intercept_range <- c(30,50)
 
 apriori_betas_means <- NULL
 apriori_betas_covariances <- NULL
