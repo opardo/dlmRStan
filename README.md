@@ -1,20 +1,100 @@
-#Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# dlmRStan
 
-#Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+## Author
 
-#Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+Omar Pardo (omarpardog@gmail.com)
 
-#Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+## Description
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://www.visualstudio.com/en-us/docs/git/create-a-readme). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Bayesian Linear Models in a time series context, with different beta's value for each time period, considering a correlation structure between all of them. Are also commonly known as Dynamic Linear Models (DLMs). 
+
+The package uses [RStan](http://mc-stan.org/users/interfaces/rstan) to develop and run the MCMC algorithm in C++.
+
+## Installation
+
+```{r}
+install.packages("devtools")
+library(devtools)
+install_github("opardo/dlmRStan")
+```
+
+## Example
+
+### Context
+The next example takes place in the market research context, trying to explain a [corporate brand](https://en.wikipedia.org/wiki/Brand_architecture)'s *Awareness* KPI with the TV investment data. *Awareness* is defined as the percentage of people who declares to know the corporate brand. The TV investment is in *[Adstocked](https://en.wikipedia.org/wiki/Advertising_adstock) [GRPs](https://es.wikipedia.org/wiki/Gross_Rating_Points)*, an unit which removes the money effect, and takes into account that a commercial is reminded, even if it was seen time ago. 
+
+For this specific case, 4 covariates are used:
+- Main Thrust: commercials about corporate brand's image
+- Sub-brands: advertising for specific products
+- Competitor 1
+- Competitor 2
+
+*Awareness* is a special metric because the competitors' effect is almost always non-negative. In the worst case, consumers don't associate the competitors' ads with the studied brand and the contribution to *Awareness* is 0. But in other cases there is a confussion effect inside the category, and the competitors' contribution is positive. So it makes sense to set a restriction about non-negative betas.
+
+Also, there is a belief *Awareness' base level* exists. That means, there is a group of people who will recognize the brand, even if they didn't see any ad. In the model this is captured by the Intercept, so we expect it to be positive and lower than *Awareness*.
+
+### Code
+The dataset is contained inside the package and is called in the next way:
+```{r}
+# Load package
+library(dlmRStan)
+
+# Load data (Market Research)
+data("dlmRStan3")
+dataset <- dlmRStan3
+```
+We have defined the *Awareness* as the dependent variable, and the intercept's presence has been explained, so the formula is
+```{r}
+formula <- awareness ~ .
+```
+If the intercept's presence didn't make sense, formula would be written 
+```{r}
+formula <- awareness ~ . + 0
+```
+Then the model is fitted, restricting some parameters' values because of the context. Also the MCMC algorithm's parameters are modified for the fitting process to run faster.
+
+```{r}
+model <- dlmRStan(
+  formula = formula,
+  dataset = dataset,
+  betas_range = c(0, 0.07),
+  intercept_range = c(30,50),
+  chains = 4,
+  iter = 1000,
+  warmup = 500
+)
+
+```
+Once the model is run, a fitting's validation is done. These include
+- Mean squared errors (MSE),
+- Mean absolute errors (MAE)
+- Soft pseudo-squared R (squared correlation between the real data and the model's mean prediction)
+- Hard pseudo-squared R (squared correlation between the real data's changes and the model's mean prediction ones, regarding the previous period)
+- [loo](https://www.rdocumentation.org/packages/loo/versions/1.0.0/topics/loo)
+- [waic](https://www.rdocumentation.org/packages/blmeco/versions/1.1/topics/WAIC)
+```{r}s
+model$validation
+```
+
+Some standard insights are extracted and ploted, including the model's adjustment, the mean betas' values (efficiencies) and the covariates' contribution for each period.
+```{r}
+model$insights$plots
+```
+![Image of model_adjustment](https://github.com/opardo/dlmRStan/blob/master/images/model_adjustment.png)
+![Image of betas](https://github.com/opardo/dlmRStan/blob/master/images/betas.png)
+![Image of contributions](https://github.com/opardo/dlmRStan/blob/master/images/contributions.png)
+
+The data used to create these plots is accessible by writing
+```{r}s
+model$insights$tables
+```
+
+Finally, if an uncertainity's measure is needed, the standard deviation for each parameter can be found in
+```{r}s
+model$fit$parameters$beta_sd
+model$fit$parameters$contribution_sd
+```
+
+## Test
+
+TODO
