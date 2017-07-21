@@ -12,7 +12,7 @@ The package uses [RStan](http://mc-stan.org/users/interfaces/rstan) to develop a
 
 ## Installation
 
-First of all, you must [install RTools](http://thecoatlessprofessor.com/programming/rcpp/install-rtools-for-rcpp/), since the algorithm runs in C++.
+First of all you must [install RTools](http://thecoatlessprofessor.com/programming/rcpp/install-rtools-for-rcpp/), since the algorithm runs in C++.
 
 Then you run the following code:
 
