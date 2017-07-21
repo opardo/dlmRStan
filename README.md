@@ -8,9 +8,13 @@ Omar Pardo (omarpardog@gmail.com)
 
 Bayesian Linear Models in a time series context, with different beta's value for each time period, considering a correlation structure between all of them. Are also commonly known as Dynamic Linear Models (DLMs). 
 
-The package uses [RStan](http://mc-stan.org/users/interfaces/rstan) to develop and run the MCMC algorithm in C++.
+The package uses [RStan](http://mc-stan.org/users/interfaces/rstan) to develop and run the MCMC algorithm.
 
 ## Installation
+
+First of all, you must [install Rtools](http://thecoatlessprofessor.com/programming/rcpp/install-rtools-for-rcpp/), since the algorithm runs in C++.
+
+Then you might only run the following code:
 
 ```{r}
 install.packages("devtools")
