@@ -29,5 +29,5 @@ model$validation
 model$insights$plots
 
 # Parameters' errors
-model$parameters$betas_sd
-model$parameters$contribution_sd
+model$fit$parameters$beta_sd
+model$fit$parameters$contribution_sd
