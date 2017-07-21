@@ -93,7 +93,7 @@ The data used to create these plots is accessible by writing
 model$insights$tables
 ```
 
-Finally, if an uncertainity's measure is needed, the standard deviation for each parameter can be found in
+Finally, if an uncertainity's measure is needed, the standard deviation for each parameter estimation can be found in
 ```{r}s
 model$fit$parameters$beta_sd
 model$fit$parameters$contribution_sd
