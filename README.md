@@ -6,15 +6,15 @@ Omar Pardo (omarpardog@gmail.com)
 
 ## Description
 
-Bayesian Linear Models in a time series context, with different beta's value for each time period, considering a correlation structure between all of them. Are also commonly known as Dynamic Linear Models (DLMs). 
+Bayesian linear model in a time series context, with different beta for each time period, considering a correlation structure between all of them. Are also commonly known as Dynamic Linear Models (DLMs). 
 
 The package uses [RStan](http://mc-stan.org/users/interfaces/rstan) to develop and run the MCMC algorithm.
 
 ## Installation
 
-First of all you must [install RTools](http://thecoatlessprofessor.com/programming/rcpp/install-rtools-for-rcpp/), since the algorithm runs in C++.
+First of all, you must [install RTools](http://thecoatlessprofessor.com/programming/rcpp/install-rtools-for-rcpp/), since the algorithm runs in C++.
 
-Then you run the following code:
+Then you should run the following code to install the package from Github (hope soon is going to be in CRAN).
 
 ```{r}
 install.packages("devtools")
@@ -25,7 +25,7 @@ install_github("opardo/dlmRStan")
 ## Example
 
 ### Context
-The next example takes place in the market research context, trying to explain a [corporate brand](https://en.wikipedia.org/wiki/Brand_architecture)'s *Awareness* KPI with the TV investment data. *Awareness* is defined as the percentage of people who declares to know the corporate brand. The TV investment is in *[Adstocked](https://en.wikipedia.org/wiki/Advertising_adstock) [GRPs](https://es.wikipedia.org/wiki/Gross_Rating_Points)*, an unit which removes the money effect, and takes into account that a commercial is reminded, even if it was seen time ago. 
+The next example takes place in the market research context, trying to explain a [corporate brand](https://en.wikipedia.org/wiki/Brand_architecture)'s *Awareness* with the TV investment data. *Awareness* is a KPI defined as the percentage of people who declares to know the corporate brand. The TV investment is in *[Adstocked](https://en.wikipedia.org/wiki/Advertising_adstock) [GRPs](https://es.wikipedia.org/wiki/Gross_Rating_Points)*, an unit which removes the currency fluctuations, and takes into account that a commercial is reminded, even if it was seen time ago. 
 
 For this specific case, 4 covariates are used:
 - Main Thrust: commercials about corporate brand's image
@@ -33,7 +33,7 @@ For this specific case, 4 covariates are used:
 - Competitor 1
 - Competitor 2
 
-*Awareness* is a special metric because the competitors' effect is almost always non-negative. In the worst case, consumers don't associate the competitors' ads with the studied brand and the contribution to *Awareness* is 0. But in other cases there is a confussion effect inside the category, and the competitors' contribution is positive. So it makes sense to set a restriction about non-negative betas.
+*Awareness* is a special metric because the competitors' effect is almost always non-negative. In the worst case, consumers don't associate the competitors' ads with the studied brand and the contribution to *Awareness* is 0. But in other cases there is a confussion effect within the category, and the competitors' contribution is positive. So it makes sense to set a restriction about non-negative betas.
 
 Also, there is a belief *Awareness' base level* exists. That means, there is a group of people who will recognize the brand, even if they didn't see any ad. In the model this is captured by the Intercept, so we expect it to be positive and lower than *Awareness*.
 
@@ -47,7 +47,7 @@ library(dlmRStan)
 data("dlmRStan3")
 dataset <- dlmRStan3
 ```
-We have defined the *Awareness* as the dependent variable, and the intercept's presence has been explained, so the formula is
+We have defined the *Awareness* as the dependent variable, and the intercept's presence has been explained, so the formula should be
 ```{r}
 formula <- awareness ~ .
 ```
@@ -55,7 +55,7 @@ If the intercept's presence didn't make sense, formula would be written
 ```{r}
 formula <- awareness ~ . + 0
 ```
-Then the model is fitted, restricting some parameters' values because of the context. Also the MCMC algorithm's parameters are modified for the fitting process to run faster.
+Then, the model is fitted, restricting some parameters' values because of the context. Also the MCMC algorithm's parameters are modified for the fitting process to run faster.
 
 ```{r}
 model <- dlmRStan(
@@ -69,7 +69,7 @@ model <- dlmRStan(
 )
 
 ```
-Once the model is run, a fitting's validation is done. These include
+Once the model is fitted, a validation of the results is done. This includes
 - Mean squared errors (MSE),
 - Mean absolute errors (MAE)
 - Soft pseudo-squared R (squared correlation between the real data and the model's mean prediction)
