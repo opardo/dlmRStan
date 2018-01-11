@@ -10,11 +10,21 @@ Bayesian linear model in a time series context, with a different beta for each t
 
 This package uses [RStan](http://mc-stan.org/users/interfaces/rstan) to develop and run the MCMC algorithm.
 
+## Model
+
+Be one dependent random variable _y<sub>t</sub>_, and a vector of independent variables _x<sub>t</sub>_, so _P(y<sub>t</sub>|x<sub>t</sub>)_ makes sense. Is important to remark that the subindex _t_ is not exchangable, that is to say, the subindex represents the order in time. Then, this package's model can be expressed as
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{150}&space;\begin{aligned}&space;y_t|x_t,&space;\beta_t,\sigma^2&space;&\sim&space;\mathcal{N}(x_t^T\beta_t,&space;\sigma^2)&space;\\&space;\sigma^2&space;&\sim&space;Gamma(\sigma_\gamma,&space;\sigma_\delta)&space;\\&space;\beta_t&space;|&space;\beta_{t-1},&space;AF&space;&\sim&space;\mathcal{N}(\beta_{t-1},&space;AF&space;*&space;B),&space;t&space;\geq&space;2\\&space;\beta_1&space;|&space;\mu_1,&space;AF&space;&\sim&space;\mathcal{N}(\mu_1,&space;AF&space;*&space;B)&space;\\&space;\mu_1&space;&\sim&space;\mathcal{N}(b,B)&space;\\&space;AF&space;&\sim&space;Beta(AF_\gamma,AF_\delta).&space;\end{aligned}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{150}&space;\begin{aligned}&space;y_t|x_t,&space;\beta_t,\sigma^2&space;&\sim&space;\mathcal{N}(x_t^T\beta_t,&space;\sigma^2)&space;\\&space;\sigma^2&space;&\sim&space;Gamma(\sigma_\gamma,&space;\sigma_\delta)&space;\\&space;\beta_t&space;|&space;\beta_{t-1},&space;AF&space;&\sim&space;\mathcal{N}(\beta_{t-1},&space;AF&space;*&space;B),&space;t&space;\geq&space;2\\&space;\beta_1&space;|&space;\mu_1,&space;AF&space;&\sim&space;\mathcal{N}(\mu_1,&space;AF&space;*&space;B)&space;\\&space;\mu_1&space;&\sim&space;\mathcal{N}(b,B)&space;\\&space;AF&space;&\sim&space;Beta(AF_\gamma,AF_\delta).&space;\end{aligned}" title="\begin{aligned} y_t|x_t, \beta_t,\sigma^2 &\sim \mathcal{N}(x_t^T\beta_t, \sigma^2) \\ \sigma^2 &\sim Gamma(\sigma_\gamma, \sigma_\delta) \\ \beta_t | \beta_{t-1}, AF &\sim \mathcal{N}(\beta_{t-1}, AF * B), t \geq 2\\ \beta_1 | \mu_1, AF &\sim \mathcal{N}(\mu_1, AF * B) \\ \mu_1 &\sim \mathcal{N}(b,B) \\ AF &\sim Beta(AF_\gamma,AF_\delta). \end{aligned}" /></a>
+
+This package introduces a novelty with regard to other dlm packages: it allows the modeler to constraint the beta and squared-sigma values with the following restrictions:
+
+<a href="https://www.codecogs.com/eqnedit.php?latex=\dpi{150}&space;\begin{aligned}&space;\beta_{lb}&space;\leq&space;&\beta_t&space;\leq&space;\beta_{ub}&space;\\&space;\sigma_{lb}&space;&\leq&space;\sigma^2.&space;\end{aligned}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\dpi{150}&space;\begin{aligned}&space;\beta_{lb}&space;\leq&space;&\beta_t&space;\leq&space;\beta_{ub}&space;\\&space;\sigma_{lb}&space;&\leq&space;\sigma^2.&space;\end{aligned}" title="\begin{aligned} \beta_{lb} \leq &\beta_t \leq \beta_{ub} \\ \sigma_{lb} &\leq \sigma^2. \end{aligned}" /></a>
+
 ## Installation
 
 First of all, you must [install RTools](http://thecoatlessprofessor.com/programming/rcpp/install-rtools-for-rcpp/), since the algorithm runs in C++.
 
-Then you should run the following code to install the package from Github (hope soon is going to be in CRAN).
+Then you should run the following code to install the package from Github.
 
 ```{r}
 install.packages("devtools")
